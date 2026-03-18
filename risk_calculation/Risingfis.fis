@@ -1,0 +1,47 @@
+[System]
+Name='Risingfis'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=9
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='Sno'
+Range=[0 40]
+NumMFs=3
+MF1='L':'trapmf',[-1.429 -1.429 2 5]
+MF2='N':'trimf',[2 5 8]
+MF3='H':'trapmf',[5 8 40.27 41.87]
+
+[Input2]
+Name='ratiodn'
+Range=[0 2.2]
+NumMFs=3
+MF1='L':'trapmf',[-0.135 -0.0437 0.0393039316917901 0.0493039316917901]
+MF2='N':'trimf',[0.0393039316917901 0.0493039316917901 0.0593039316917901]
+MF3='H':'trapmf',[0.0493039316917901 0.0593039316917901 2.205 2.272]
+
+[Output1]
+Name='Rising'
+Range=[-0.2 1.2]
+NumMFs=3
+MF1='Low':'trimf',[-0.2 0 0.2]
+MF2='Medium':'trimf',[0.2 0.5 0.8]
+MF3='High':'trimf',[0.8 1 1.2]
+
+[Rules]
+3 3, 1 (1) : 1
+2 3, 1 (1) : 1
+2 2, 1 (1) : 1
+2 1, 2 (1) : 1
+1 3, 1 (1) : 1
+1 1, 1 (1) : 1
+1 2, 1 (1) : 1
+3 2, 2 (1) : 1
+3 1, 3 (1) : 1

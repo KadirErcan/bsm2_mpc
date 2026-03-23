@@ -22,8 +22,8 @@ disp(' ')
 
 plotflag = 1;
 
-starttime = t(1); 
-stoptime = t(end);
+starttime = 245; 
+stoptime = 609;
 
 startindex=max(find(t <= starttime));
 stopindex=min(find(t >= stoptime));

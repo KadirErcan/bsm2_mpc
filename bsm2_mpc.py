@@ -102,11 +102,16 @@ class BSM2_LCA_MPC:
         }
         self.mpc.set_param(**setup_mpc)
         
-        # 3. Objective Function (LCA Minimization)
-        # Minimize Aeration (KLa) and Recirculation (Q_intr)
-        lterm = (1.0 * self.KLa4) + (0.0001 * self.Q_intr) + (10000.0 * (self.S_NH_4 - 1.5)**2) + (10000.0 * (self.S_NO_4 - 10.0)**2)
+        # 3. Advanced Economic MPC (Deadband Logic)
         
-        mterm = (10000.0 * (self.S_NH_4 - 1.5)**2) + (10000.0 * (self.S_NO_4 - 10.0)**2)
+        # Create the Deadbands (0 penalty if safely below the threshold!)
+        ammonia_penalty = ca.fmax(0, self.S_NH_4 - 3.5)**2
+        nitrate_penalty = ca.fmax(0, self.S_NO_4 - 15.0)**2
+        
+        # Objective Function: Air is expensive, but the AI can relax at night!
+        lterm = (100.0 * self.KLa4) + (0.0001 * self.Q_intr) + (10000.0 * ammonia_penalty) + (2500.0 * nitrate_penalty)
+        
+        mterm = (10000.0 * ammonia_penalty) + (2500.0 * nitrate_penalty)
         
         self.mpc.set_objective(mterm=mterm, lterm=lterm)
         self.mpc.set_rterm(KLa4=0.1, Q_intr=0.01)
@@ -114,7 +119,7 @@ class BSM2_LCA_MPC:
         # 4. Constraints
         # 4. Constraints (Physical Limits)
         # We prevent the MPC from ever picking negative values
-        self.mpc.bounds['lower', '_u', 'KLa4'] = 30.0      # Min aeration
+        self.mpc.bounds['lower', '_u', 'KLa4'] = 0.0      # Min aeration
         self.mpc.bounds['upper', '_u', 'KLa4'] = 360.0     # Max aeration
         self.mpc.bounds['lower', '_u', 'Q_intr'] = 0.0    # Min recirculation
         self.mpc.bounds['upper', '_u', 'Q_intr'] = 92000.0 # Max recirculation
